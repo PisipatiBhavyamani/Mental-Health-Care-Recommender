@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mental Health Recommender Chatbot</title>
+    <style>
+
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap'); /* Import a custom font */
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .welcome-container {
+            display: flex;
+            background-image: url("/static/Bg3.jpeg"); /* Path to your welcome background image */
+            background-size: cover;
+            background-position: center;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .chat-container {
+            display: flex;
+            background-image: url("/static/Bg.png"); /* Path to your chat background image */
+            background-size: cover;
+            background-position: center;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+        }
+        .welcome-container h1 {
+            font-size: 2em;
+            color: #333;
+            font-family: 'Lobster', cursive; /* Apply custom font */
+            text-shadow: 2px 2px 4px #000000; /* Add text shadow for stylish effect */
+            margin-bottom: 20px;
+        }
+        .welcome-container button {
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+        .message {
+            margin-bottom: 10px;
+            max-width: 70%;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .user-message {
+            align-self: flex-end;
+            background-color: #f21717;
+            color: rgb(243, 230, 238);
+            text-align: right;
+        }
+        .bot-message {
+            align-self: flex-start;
+            background-color: #f0f0f0;
+            color: black;
+            text-align: left;
+        }
+        .input-container {
+            display: flex;
+            border-top: 1px solid #ccc;
+            padding: 10px;
+            background-color: #fff;
+        }
+        .input-container input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .input-container button {
+            padding: 10px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container welcome-container" id="welcomeContainer">
+        <h1>Welcome to Mental Health Care Chatbot</h1>
+        <button onclick="startChat()">Start Chat</button>
+    </div>
+    <div class="container chat-container" id="chatContainer">
+        <div class="messages" id="messages"></div>
+        <div class="input-container">
+            <input type="text" id="userInput" placeholder="Type your message here...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+    <script>
+        function startChat() {
+            document.getElementById('welcomeContainer').style.display = 'none';
+            document.getElementById('chatContainer').style.display = 'flex';
+            sendInitialGreeting();
+        }
+
+        function sendInitialGreeting() {
+            const messages = document.getElementById('messages');
+            const botMessage = document.createElement('div');
+            botMessage.classList.add('message', 'bot-message');
+            botMessage.innerText = "Hello!! This is Mental health recommendation chatbot";
+            messages.appendChild(botMessage);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function sendMessage() {
+            const userInput = document.getElementById('userInput').value;
+            const messages = document.getElementById('messages');
+            
+            if (userInput.trim() === "") {
+                return;
+            }
+
+            const userMessage = document.createElement('div');
+            userMessage.classList.add('message', 'user-message');
+            userMessage.innerText = userInput;
+            messages.appendChild(userMessage);
+
+            fetch("/get_response", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ message: userInput })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const botMessage = document.createElement('div');
+                botMessage.classList.add('message', 'bot-message');
+                botMessage.innerText = data.response;
+                messages.appendChild(botMessage);
+
+                messages.scrollTop = messages.scrollHeight;
+            });
+
+            document.getElementById('userInput').value = "";
+        }
+
+        // Initialize welcome screen visibility
+        document.getElementById('welcomeContainer').style.display = 'flex';
+    </script>
+</body>
+</html>
